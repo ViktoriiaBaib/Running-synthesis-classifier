@@ -1,3 +1,5 @@
+lowered_dois_for_synthesis_bert_training.pkl
+data/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
