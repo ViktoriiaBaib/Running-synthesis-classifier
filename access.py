@@ -1,6 +1,12 @@
 from pymongo import MongoClient
 from pprint import pprint
-from collections import Counter
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-c', '--collection', type=str, default="A")
+args = parser.parse_args()
+
+col = args.collection
 
 print("Connecting to DB...")
 
@@ -17,18 +23,24 @@ client = MongoClient(
 if col=="A":
     print("Connecting to A")
     paragraphs = client.db.AParagraphs
-    # New collection for insertions
-    paragraphsmeta = client.db.AParagraphsMeta
 
 number_of_documents = paragraphs.count_documents({})
-query = {"path": {"$regex": "preparation|prepared|experiment|method|material|synthes", "$options": "i"}}
-synt_docs = paragraphs.count_documents(query)
-print(f"\n\nParagraphs collection has {number_of_documents} files, need to classify filtered {synt_docs}")
-
-number_of_documents = paragraphsmeta.count_documents({})
+query0 = {"classification": {"$regex": "filtered_out", "$options": "i"}}
+query1 = {"classification": {"$regex": "something_else", "$options": "i"}}
+#query = {"path": {"$regex": "preparation|prepared|experiment|method|material|synthes", "$options": "i"}}
 queryS = {"classification": {"$regex": "synthesis", "$options": "i"}}
-synt_docs = paragraphsmeta.count_documents(queryS)
-print(f"Paragraphs Meta collection has {number_of_documents} files, classified as synthesis {synt_docs}\n")
+fo_docs = paragraphs.count_documents(query0)
+se_docs = paragraphs.count_documents(query1)
+synt_docs = paragraphs.count_documents(queryS)
+print(f"\n\n{col} Paragraphs collection files: {number_of_documents} \n filtered out: {fo_docs} \n something else: {se_docs} \n synthesis: {synt_docs}")
 
-synt_counts = Counter([doc["classification"] for doc in paragraphsmeta.find(queryS)])
-print("Paragraphs Meta collection has the following counts for synthesis types:\n", synt_counts)
+queryS1 = {"classification": {"$regex": "solid_state_ceramic_synthesis", "$options": "i"}}
+queryS2 = {"classification": {"$regex": "hydrothermal_ceramic_synthesis", "$options": "i"}}
+queryS3 = {"classification": {"$regex": "sol_gel_ceramic_synthesis", "$options": "i"}}
+queryS4 = {"classification": {"$regex": "precipitation_ceramic_synthesis", "$options": "i"}}
+
+ss_docs = paragraphs.count_documents(queryS1)
+hc_docs = paragraphs.count_documents(queryS2)
+sg_docs = paragraphs.count_documents(queryS3)
+pc_docs = paragraphs.count_documents(queryS4)
+print(f" solid_state: {ss_docs} \n hydrothermal: {hc_docs} \n sol_gel: {sg_docs} \n precipitation: {pc_docs}")
