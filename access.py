@@ -3,13 +3,13 @@ from pprint import pprint
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-c', '--collection', type=str, default="A")
+parser.add_argument('-c', '--collection', type=str, default="IOP")
 args = parser.parse_args()
 
 col = args.collection
 
 print("Connecting to DB...")
-
+"""
 #Fill in your credentials
 client = MongoClient(
     '...',
@@ -23,6 +23,33 @@ client = MongoClient(
 if col=="A":
     print("Connecting to A")
     paragraphs = client.db.AParagraphs
+
+"""
+SynDev_client = MongoClient(
+    'mongodb://synthesisproject.lbl.gov:27017',
+    username='vbaibakova',
+    password='vbaibakova2023',
+    authSource='SynDev',
+    authMechanism='SCRAM-SHA-1'
+)
+
+syndev_db = SynDev_client.SynDev
+
+if col=="Elsevier":
+    print("Connecting to Elsevier")
+    paragraphs = syndev_db.ElsevierParagraphs
+if col=="AIP":
+    print("Connecting to AIP")
+    paragraphs = syndev_db.AIPParagraphs
+if col=="RSC":
+    print("Connecting to RSC")
+    paragraphs = syndev_db.RSCParagraphs
+if col=="IOP": #UPDATE TO V2
+    print("Connecting to IOP")
+    paragraphs = syndev_db.IOPParagraphs_v2
+if col=="Nature":
+    print("Connecting to Nature")
+    paragraphs = syndev_db.SpringerNatureParagraphs
 
 number_of_documents = paragraphs.count_documents({})
 query0 = {"classification": {"$regex": "filtered_out", "$options": "i"}}

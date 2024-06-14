@@ -8,7 +8,7 @@ import argparse
 from bson import ObjectId
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-c', '--collection', type=str, default="AIP", help="Choose Elsevier, AIP, RSC, IOP")
+parser.add_argument('-c', '--collection', type=str, default="Elsevier", help="Choose Elsevier, AIP, RSC, IOP")
 parser.add_argument('-s', '--synthesis', type=str, default="ss", help="Choose else, ss, hc, sg, pc")
 parser.add_argument('-n', '--number', type=int, default=10, help="Choose random sampple size")
 args = parser.parse_args()
@@ -23,7 +23,7 @@ class CustomJSONEncoder(json.JSONEncoder):
         return super(CustomJSONEncoder, self).default(obj)
 
 print("Connecting to DB...")
-
+"""
 #Fill in your credentials
 client = MongoClient(
     '...',
@@ -37,6 +37,32 @@ client = MongoClient(
 if col=="A":
     print("Connecting to A")
     paragraphs = client.db.AParagraphs
+"""
+SynDev_client = MongoClient(
+    'mongodb://synthesisproject.lbl.gov:27017',
+    username='vbaibakova',
+    password='vbaibakova2023',
+    authSource='SynDev',
+    authMechanism='SCRAM-SHA-1'
+)
+
+syndev_db = SynDev_client.SynDev
+
+if col=="Elsevier":
+    print("Connecting to Elsevier")
+    paragraphs = syndev_db.ElsevierParagraphs
+if col=="AIP":
+    print("Connecting to AIP")
+    paragraphs = syndev_db.AIPParagraphs
+if col=="RSC":
+    print("Connecting to RSC")
+    paragraphs = syndev_db.RSCParagraphs
+if col=="IOP": #UPDATE TO V2
+    print("Connecting to IOP")
+    paragraphs = syndev_db.IOPParagraphs_v2
+if col=="Nature":
+    print("Connecting to Nature")
+    paragraphs = syndev_db.SpringerNatureParagraphs
 
 
 queryS0 = {"classification": {"$regex": "something_else", "$options": "i"}}
@@ -74,18 +100,18 @@ selected_documents = random.sample(docs, n)
 del docs
 
 for i in range(n):
-    print ('\n\n\n= = = = = = = = = = = = = = = = = = =')
-    print(str(i+1)+' out of '+str(n))
-    print('- - - - - - - - - - - - - - - - - -')
-    print(selected_documents[i]["text"])
-    print('- - - - - - - - - - - - - - - - - -')
-    print("Classification: ", selected_documents[i]["classification"])
-    a = input('User classification? ')
-    if len(a)==0: 
-        print('Ups! Once again, please')
-        a = input('User classification? ')
-    selected_documents[i]['user_classification'] = a
-    print ('= = = = = = = = = = = = = = = = = = =')
+    #print ('\n\n\n= = = = = = = = = = = = = = = = = = =')
+    #print(str(i+1)+' out of '+str(n))
+    #print('- - - - - - - - - - - - - - - - - -')
+    #print(selected_documents[i]["text"])
+    #print('- - - - - - - - - - - - - - - - - -')
+    #print("Classification: ", selected_documents[i]["classification"])
+    #a = input('User classification? ')
+    #if len(a)==0: 
+    #    print('Ups! Once again, please')
+    #    a = input('User classification? ')
+    selected_documents[i]['user_classification'] = ""
+    #print ('= = = = = = = = = = = = = = = = = = =')
 with open(f"{col}_{synt}.json", 'w') as json_file:
     json.dump(selected_documents, json_file, indent=4, cls=CustomJSONEncoder)
 print('THE END. GOOD JOB')
