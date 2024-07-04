@@ -1,0 +1,13 @@
+#!/bin/bash
+#SBATCH --qos=
+#SBATCH --time=
+#SBATCH --nodes=
+#SBATCH -A project
+#SBATCH -C 
+#SBATCH --job-name=syntclass
+#SBATCH --mem=185G
+
+source ~/miniconda3/etc/profile.d/conda.sh
+conda activate envname
+cd $PROJ
+python classify.py -i 0
